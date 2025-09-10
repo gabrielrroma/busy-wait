@@ -1,0 +1,47 @@
+/* Tipografia e base */
+body {
+  font-family: "Segoe UI", Roboto, Arial, sans-serif;
+  line-height: 1.6;
+}
+
+/* Títulos com barra lateral azul */
+h2 {
+  border-left: 5px solid #0d6efd;
+  padding-left: 10px;
+}
+
+/* Cards / imagens */
+.card-img-top {
+  max-height: 350px;
+  object-fit: contain;
+  background: #f8f9fa;
+}
+
+/* Bloco de definição (texto) */
+.definition-card {
+  background: #ffffff;
+  border: 1px solid #e9ecef;
+  border-left: 5px solid #0d6efd;
+  border-radius: .5rem;
+  padding: 16px 18px;
+}
+.definition-card ul {
+  margin-top: .5rem;
+}
+.definition-card code {
+  background: #f1f3f5;
+  padding: 0 .25rem;
+  border-radius: .25rem;
+}
+
+/* Ajustes de espaçamento nos cards */
+.card .card-body {
+  padding: .75rem 1rem;
+}
+
+/* Melhor responsividade da galeria em telas pequenas */
+@media (max-width: 576px) {
+  .card-img-top {
+    max-height: 260px;
+  }
+}

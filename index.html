@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Exclusão Mútua - Espera Ocupada</title>
+
+  <!-- Bootstrap -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <!-- Estilos próprios -->
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body class="bg-light text-dark">
+
+  <!-- Navbar -->
+  <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <div class="container">
+      <a class="navbar-brand fw-bold" href="#">Exclusão Mútua</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ms-auto">
+          <li class="nav-item"><a class="nav-link" href="#intro">Introdução</a></li>
+          <li class="nav-item"><a class="nav-link" href="#exclusao">Exclusão Mútua</a></li>
+          <li class="nav-item"><a class="nav-link" href="#busywait">Espera Ocupada</a></li>
+          <li class="nav-item"><a class="nav-link" href="#problema">Problema</a></li>
+          <li class="nav-item"><a class="nav-link" href="#solucao">Solução</a></li>
+          <li class="nav-item"><a class="nav-link" href="#conclusao">Conclusão</a></li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <main class="container my-5">
+
+    <!-- Introdução -->
+    <section id="intro" class="mb-5">
+      <h2 class="mb-3">Introdução</h2>
+      <p>
+        Em sistemas concorrentes, várias threads podem acessar uma variável ao mesmo tempo.
+        Isso gera erros chamados <b>race conditions</b>. Para resolver, usamos
+        <b>exclusão mútua</b>, que garante acesso exclusivo à região crítica.
+      </p>
+      <p>
+        Nosso foco é a <b>espera ocupada (busy-wait)</b>: em vez de bloquear,
+        a thread fica girando em um loop até poder entrar na região crítica.
+      </p>
+    </section>
+
+    <!-- Exclusão Mútua (só texto) -->
+    <section id="exclusao" class="mb-5">
+      <h2 class="mb-3">Exclusão Mútua (o que é?)</h2>
+      <div class="definition-card shadow-sm">
+        <p class="mb-2">
+          <b>Exclusão mútua</b> é a propriedade que garante que <b>apenas uma</b> thread/processo
+          entra na <b>região crítica</b> por vez — o trecho de código que acessa dados compartilhados
+          (ex.: contador global, lista, mapa).
+        </p>
+        <ul class="mb-2">
+          <li><b>Corretude:</b> duas threads não executam a região crítica simultaneamente.</li>
+          <li><b>Progresso:</b> se ninguém está na região crítica, alguma thread pronta entra.</li>
+          <li><b>Espera limitada:</b> uma thread não espera indefinidamente para entrar (sem fome/starvation).</li>
+        </ul>
+        <p class="mb-0">
+          O objetivo é evitar <b>condições de corrida</b> (resultados incorretos/não determinísticos) e manter os dados consistentes.
+        </p>
+      </div>
+    </section>
+
+    <!-- Espera Ocupada -->
+    <section id="busywait" class="mb-5">
+      <h2 class="mb-3">Espera Ocupada (busy-wait)</h2>
+      <div class="definition-card shadow-sm">
+        <p class="mb-2">
+          Em <b>espera ocupada</b>, a thread <b>não bloqueia</b> e <b>não dorme</b>; ela permanece
+          verificando continuamente (em um <code>while</code>) se já pode entrar na região crítica.
+        </p>
+        <ul class="mb-2">
+          <li><b>Pró:</b> latência muito baixa para regiões críticas <b>curtas</b> e pouca contenção.</li>
+          <li><b>Contra:</b> consome CPU enquanto espera (gira em loop), podendo afetar desempenho/energia.</li>
+          <li><b>Uso típico:</b> camadas de baixo nível (kernel/drivers) e quando a seção crítica é bem curta.</li>
+        </ul>
+        <p class="mb-0">
+          No nosso projeto, o algoritmo de <b>Peterson</b> implementa exclusão mútua utilizando espera ocupada,
+          controlando a entrada por meio de <code>flag[]</code> e da variável <code>turn</code>.
+        </p>
+      </div>
+    </section>
+
+    <!-- Problema -->
+    <section id="problema" class="mb-5">
+      <h2 class="mb-3">Problema: Race Condition</h2>
+      <p>
+        Sem exclusão mútua, o valor esperado nunca é garantido. Abaixo estão <b>três execuções</b> do mesmo programa
+        <em>sem lock</em>; note que o resultado muda e é sempre menor que o esperado.
+      </p>
+      <div class="row g-3">
+        <div class="col-md-4">
+          <div class="card shadow-sm h-100">
+            <img src="imgs/sem_lock_1.png" class="card-img-top" alt="Sem lock — execução 1 (valor incorreto)" />
+            <div class="card-body">
+              <p class="card-text mb-0"><b>Sem lock</b> — Race condition: ~1.049.545.</p>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="card shadow-sm h-100">
+            <img src="imgs/sem_lock_2.png" class="card-img-top" alt="Sem lock — execução 2 (valor incorreto)" />
+            <div class="card-body">
+              <p class="card-text mb-0"><b>Sem lock</b> — Outro valor incorreto (~1.045.207).</p>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="card shadow-sm h-100">
+            <img src="imgs/sem_lock_3.png" class="card-img-top" alt="Sem lock — execução 3 (valor incorreto)" />
+            <div class="card-body">
+              <p class="card-text mb-0"><b>Sem lock</b> — Outro valor incorreto (~1.030.193).</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Solução -->
+    <section id="solucao" class="mb-5">
+      <h2 class="mb-3">Solução: Algoritmo de Peterson</h2>
+      <p>
+        O <b>Peterson</b> resolve o problema para 2 threads. Cada thread:
+      </p>
+      <ul>
+        <li>Sinaliza que quer entrar (<code>flag[id] = true</code>)</li>
+        <li>Entrega a vez ao outro (<code>turn = other</code>)</li>
+        <li>Se o outro também quiser entrar, espera em loop (busy-wait)</li>
+      </ul>
+      <p>Assim, só uma entra de cada vez na região crítica.</p>
+
+      <div class="card shadow-sm">
+        <img src="imgs/peterson_ok.png" class="card-img-top" alt="Execução com Peterson (correta)" />
+        <div class="card-body">
+          <p class="card-text mb-0"><i>Exclusão mútua garantida: 2.000.000 / 2.000.000.</i></p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Conclusão -->
+    <section id="conclusao" class="mb-5">
+      <h2 class="mb-3">Conclusão</h2>
+      <p>
+        O Algoritmo de Peterson garante exclusão mútua com espera ocupada.
+        Funciona bem para <b>2 threads</b>, sem instruções especiais de hardware.
+      </p>
+      <p>
+        Porém, como a espera é ativa, as threads gastam CPU enquanto aguardam.
+        Por isso, é indicado apenas para regiões críticas curtas e contextos
+        de baixo nível, como sistemas operacionais.
+      </p>
+    </section>
+
+  </main>
+
+  <footer class="text-center py-3 bg-dark text-white">
+    <p class="mb-0">&copy; 2025 Grupo 1 - Infra de Software</p>
+  </footer>
+
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
